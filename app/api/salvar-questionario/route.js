@@ -10,10 +10,13 @@ export async function POST(req) {
         const body = await req.json()
     const { respondente_id, respostas, apenas_criar } = body
 
-    if (apenas_criar) {
+        if (apenas_criar) {
       const { data, error } = await supabase
         .from('olhar_respondentes')
-        .insert({ status: 'questionario' })
+        .insert({
+          status: 'questionario',
+          termos_aceitos_at: new Date().toISOString(),
+        })
         .select('id')
         .single()
       if (error) throw error

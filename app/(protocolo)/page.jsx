@@ -14,7 +14,13 @@ function HomeContent() {
   const [loading, setLoading] = useState(true)
   const [erro, setErro] = useState(false)
 
-  const token = searchParams.get('t')
+   const token = searchParams.get('t')
+  const [termosAceitos, setTermosAceitos] = useState(false)
+
+  useEffect(() => {
+    const aceito = sessionStorage.getItem('olhar_termos_aceitos')
+    if (aceito === 'true') setTermosAceitos(true)
+  }, [])
 
   useEffect(() => {
     async function load() {
@@ -170,9 +176,36 @@ function HomeContent() {
         </p>
       </div>
 
+            {/* termos */}
+      <div className="mb-6 max-w-xs w-full">
+        <label className="flex items-start gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={termosAceitos}
+            onChange={e => {
+              setTermosAceitos(e.target.checked)
+              if (e.target.checked) sessionStorage.setItem('olhar_termos_aceitos', 'true')
+              else sessionStorage.removeItem('olhar_termos_aceitos')
+            }}
+            className="mt-0.5 accent-amber-600 w-4 h-4 flex-shrink-0"
+          />
+          <span className="text-xs text-stone-100/50 font-light leading-relaxed text-left">
+            Li e concordo com os{' '}
+            
+              href="/termos"
+              className="underline"
+              style={{ color: 'rgba(196,115,42,0.8)' }}
+            >
+              Termos de Uso e Política de Privacidade
+            </a>
+          </span>
+        </label>
+      </div>
+
       <button
         onClick={() => router.push('/questionario')}
-        className="px-10 py-3.5 rounded-full text-stone-100 font-medium text-base transition-all hover:-translate-y-0.5"
+        disabled={!termosAceitos}
+        className="px-10 py-3.5 rounded-full text-stone-100 font-medium text-base transition-all hover:-translate-y-0.5 disabled:opacity-40 disabled:cursor-default disabled:hover:translate-y-0"
         style={{ background: '#C4732A' }}
       >
         Começar
