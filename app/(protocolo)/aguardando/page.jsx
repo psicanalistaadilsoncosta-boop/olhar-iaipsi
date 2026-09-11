@@ -1,4 +1,31 @@
+'use client'
+
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+
 export default function AguardandoPage() {
+  const supabase = createClient()
+  const [sessao, setSessao] = useState(null)
+
+  useEffect(() => {
+    async function loadSessao() {
+      const respondente_id = sessionStorage.getItem('olhar_respondente_id')
+      if (!respondente_id) return
+
+      const { data } = await supabase
+        .from('olhar_sessoes')
+        .select('*')
+        .eq('respondente_id', respondente_id)
+        .eq('status', 'agendada')
+        .order('data_sessao', { ascending: true })
+        .limit(1)
+        .maybeSingle()
+
+      setSessao(data)
+    }
+    loadSessao()
+  }, [])
+
   return (
     <main
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-8 py-16 text-center"
@@ -6,25 +33,73 @@ export default function AguardandoPage() {
     >
       <div
         className="absolute -top-28 -right-16 w-96 h-96 rounded-full pointer-events-none"
-        style={{ background: '#C4732A', opacity: 0.07 }}
+        style={{ background: '#C4732A', opacity: 0.06 }}
       />
+
       <div className="text-4xl mb-6">🌙</div>
+
       <h1
-        className="text-2xl text-stone-100 mb-4"
+        className="text-2xl text-stone-100 leading-snug mb-4"
         style={{ fontFamily: "'Playfair Display', serif", fontWeight: 400 }}
       >
         Suas reflexões foram recebidas
       </h1>
-      <p className="text-sm text-stone-100/50 font-light leading-relaxed max-w-xs">
+
+      <p className="text-sm text-stone-100/50 font-light leading-relaxed max-w-xs mb-8">
         Seu analista está lendo com cuidado tudo que você compartilhou.<br /><br />
         Em breve você receberá uma devolutiva. Não há nada mais a fazer por agora — descanse.
       </p>
+
       <div
-        className="mt-8 px-5 py-2 rounded-full border text-sm"
+        className="px-5 py-2 rounded-full border text-sm mb-6"
         style={{ borderColor: 'rgba(196,115,42,0.3)', background: 'rgba(196,115,42,0.1)', color: 'rgba(196,115,42,0.9)' }}
       >
         Retorno em até 48h
       </div>
+
+      {/* Sessão agendada */}
+      {sessao && (
+        <div
+          className="mt-4 max-w-xs w-full rounded-2xl px-5 py-4 text-left"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+        >
+          <div className="flex items-center gap-2 mb-3">
+            <span className="text-base">📅</span>
+            <span
+              className="text-[11px] font-medium tracking-widest uppercase"
+              style={{ color: 'rgba(196,115,42,0.8)' }}
+            >
+              Sessão agendada
+            </span>
+          </div>
+          <p className="text-sm text-stone-100/80 font-light mb-1">
+            {new Date(sessao.data_sessao).toLocaleDateString('pt-BR', {
+              weekday: 'long', day: '2-digit', month: 'long'
+            })}
+          </p>
+          <p className="text-xs text-stone-100/50 font-light mb-4">
+            {new Date(sessao.data_sessao).toLocaleTimeString('pt-BR', {
+              hour: '2-digit', minute: '2-digit'
+            })} · {sessao.tipo === 'online' ? 'Online' : 'Presencial'}
+          </p>
+          <div className="flex gap-2">
+            <button
+              className="flex-1 py-2 rounded-xl text-xs font-medium text-white transition-colors"
+              style={{ background: '#2D6A4F' }}
+              onClick={() => alert('Confirmado! Até lá.')}
+            >
+              ✓ Confirmar presença
+            </button>
+            <button
+              className="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
+              style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(248,243,236,0.5)' }}
+              onClick={() => alert('Entre em contato com seu analista para reagendar.')}
+            >
+              Preciso reagendar
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
