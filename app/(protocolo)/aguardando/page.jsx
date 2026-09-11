@@ -82,22 +82,40 @@ export default function AguardandoPage() {
               hour: '2-digit', minute: '2-digit'
             })} · {sessao.tipo === 'online' ? 'Online' : 'Presencial'}
           </p>
+                    {sessao.confirmacao === 'confirmada' && (
+            <div className="text-center text-xs py-2" style={{ color: 'rgba(74,158,122,0.9)' }}>
+              ✓ Presença confirmada
+            </div>
+          )}
+          {sessao.confirmacao === 'reagendar' && (
+            <div className="text-center text-xs py-2" style={{ color: 'rgba(196,115,42,0.8)' }}>
+              Seu analista entrará em contato para reagendar.
+            </div>
+          )}
+          {!sessao.confirmacao && (
           <div className="flex gap-2">
             <button
               className="flex-1 py-2 rounded-xl text-xs font-medium text-white transition-colors"
               style={{ background: '#2D6A4F' }}
-              onClick={() => alert('Confirmado! Até lá.')}
+                            onClick={async () => {
+                await supabase.from('olhar_sessoes').update({ confirmacao: 'confirmada' }).eq('id', sessao.id)
+                setSessao(s => ({ ...s, confirmacao: 'confirmada' }))
+              }}
             >
               ✓ Confirmar presença
             </button>
             <button
               className="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
               style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(248,243,236,0.5)' }}
-              onClick={() => alert('Entre em contato com seu analista para reagendar.')}
+                            onClick={async () => {
+                await supabase.from('olhar_sessoes').update({ confirmacao: 'reagendar' }).eq('id', sessao.id)
+                setSessao(s => ({ ...s, confirmacao: 'reagendar' }))
+              }}
             >
               Preciso reagendar
-            </button>
+            <            </button>
           </div>
+          )}
         </div>
       )}
     </main>

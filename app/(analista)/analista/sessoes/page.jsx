@@ -18,7 +18,7 @@ export default function SessoesPage() {
   const [loading, setLoading] = useState(true)
   const [modal, setModal] = useState(false)
   const [modalNotas, setModalNotas] = useState(null)
-  const [form, setForm] = useState({ respondente_id: '', data_sessao: '', tipo: 'online' })
+  const [form, setForm] = useState({ respondente_id: '', data_sessao: '', tipo: 'online', fuso_paciente: 'America/Sao_Paulo' })
   const [notas, setNotas] = useState('')
   const [saving, setSaving] = useState(false)
 
@@ -143,12 +143,24 @@ export default function SessoesPage() {
                         <div className="text-sm font-medium text-stone-800">
                           {s.olhar_respondentes?.nome || 'Sem nome'}
                         </div>
-                        <div className="text-xs text-stone-400 font-light">
-                          {new Date(s.data_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })} · {TIPOS[s.tipo]}
+                                                <div className="text-xs text-stone-400 font-light">
+                          {new Date(s.data_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' })} Brasília
+                          {s.fuso_paciente && s.fuso_paciente !== 'America/Sao_Paulo' && (
+                            <span className="ml-2 text-amber-600">
+                              · {new Date(s.data_sessao).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', timeZone: s.fuso_paciente })} paciente
+                            </span>
+                          )}
+                          {' · '}{TIPOS[s.tipo]}
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2">
+                      {s.confirmacao === 'confirmada' && (
+                        <span className="text-[11px] px-2.5 py-1 rounded-full bg-green-50 text-green-700 border border-green-200">✓ Confirmado</span>
+                      )}
+                      {s.confirmacao === 'reagendar' && (
+                        <span className="text-[11px] px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">⚠ Quer reagendar</span>
+                      )}
                       <button onClick={() => marcarRealizada(s)}
                         className="text-xs px-3 py-1.5 rounded-full border border-green-200 text-green-700 bg-green-50 hover:bg-green-100 transition-colors">
                         Registrar notas
@@ -232,13 +244,33 @@ export default function SessoesPage() {
                   onChange={e => setForm(f => ({ ...f, data_sessao: e.target.value }))}
                   required className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm text-stone-800 outline-none focus:border-amber-400 font-light" />
               </div>
-              <div>
+                            <div>
                 <label className="text-xs font-medium text-stone-500 mb-1.5 block">Tipo</label>
                 <select value={form.tipo} onChange={e => setForm(f => ({ ...f, tipo: e.target.value }))}
                   className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm text-stone-800 outline-none focus:border-amber-400 bg-white font-light">
                   <option value="online">Online</option>
                   <option value="presencial">Presencial</option>
                 </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-stone-500 mb-1.5 block">
+                  Fuso horário do paciente
+                </label>
+                <select value={form.fuso_paciente} onChange={e => setForm(f => ({ ...f, fuso_paciente: e.target.value }))}
+                  className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm text-stone-800 outline-none focus:border-amber-400 bg-white font-light">
+                  <option value="America/Sao_Paulo">Brasil — Brasília/SP (mesmo fuso)</option>
+                  <option value="America/Manaus">Brasil — Manaus (−1h de Brasília)</option>
+                  <option value="America/New_York">EUA — Nova York / Miami (−2h de Brasília)</option>
+                  <option value="America/Chicago">EUA — Chicago (−3h de Brasília)</option>
+                  <option value="America/Denver">EUA — Denver (−4h de Brasília)</option>
+                  <option value="America/Los_Angeles">EUA — Los Angeles (−5h de Brasília)</option>
+                  <option value="Europe/Lisbon">Portugal — Lisboa (−3h de Brasília)</option>
+                  <option value="Europe/London">Reino Unido — Londres (−3h de Brasília)</option>
+                  <option value="Europe/Paris">Europa Central — Paris/Berlim (−2h de Brasília)</option>
+                </select>
+              </div>
+              <div className="bg-stone-50 rounded-xl px-4 py-3 text-xs text-stone-500 font-light">
+                O horário que você digitar acima é sempre no <strong>horário de Brasília (SP)</strong>. O sistema calcula automaticamente o horário do paciente no fuso selecionado.
               </div>
               <div className="flex gap-2 mt-2">
                 <button type="button" onClick={() => setModal(false)}
