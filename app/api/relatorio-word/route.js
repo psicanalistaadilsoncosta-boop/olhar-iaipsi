@@ -185,12 +185,13 @@ export async function GET(req) {
       children.push(titulo('3. Situações em pausa'))
 
       // Verifica quais foram respondidas em ciclos posteriores
-      const respondidasPosteriormente = new Set()
+            const respondidasPosteriormente = new Set()
       devolutivas?.forEach(d => {
         d.situacoes_retomadas?.forEach((s, i) => {
           const resp = d.respostas_situacoes_retomadas?.[i]
           if (resp && resp !== '__PULAR__' && resp !== '') {
-            respondidasPosteriormente.add(s.situacao_index)
+            const match = s.situacao?.match(/\d+/)
+            if (match) respondidasPosteriormente.add(parseInt(match[0]) - 1)
           }
         })
       })
