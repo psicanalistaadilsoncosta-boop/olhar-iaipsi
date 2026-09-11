@@ -192,7 +192,7 @@ function HomeContent() {
           <span className="text-xs text-stone-100/50 font-light leading-relaxed text-left">
             Li e concordo com os{' '}
             
-              href="/termos"
+              <a href="/termos"
               className="underline"
               style={{ color: 'rgba(196,115,42,0.8)' }}>Termos de Uso e Política de Privacidade
             </a>
