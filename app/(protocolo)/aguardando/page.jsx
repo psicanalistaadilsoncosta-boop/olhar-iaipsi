@@ -77,9 +77,10 @@ export default function AguardandoPage() {
               weekday: 'long', day: '2-digit', month: 'long'
             })}
           </p>
-          <p className="text-xs text-stone-100/50 font-light mb-4">
+                    <p className="text-xs text-stone-100/50 font-light mb-4">
             {new Date(sessao.data_sessao).toLocaleTimeString('pt-BR', {
-              hour: '2-digit', minute: '2-digit'
+              hour: '2-digit', minute: '2-digit',
+              timeZone: sessao.fuso_paciente || 'America/Sao_Paulo'
             })} · {sessao.tipo === 'online' ? 'Online' : 'Presencial'}
           </p>
                     {sessao.confirmacao === 'confirmada' && (

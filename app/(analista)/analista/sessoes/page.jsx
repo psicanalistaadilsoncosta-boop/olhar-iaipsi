@@ -45,8 +45,12 @@ export default function SessoesPage() {
     setSaving(true)
     try {
       const { data: { user } } = await supabase.auth.getUser()
+           // Converte horário de Brasília para UTC antes de salvar
+      const dataBrasilia = new Date(form.data_sessao + ':00-03:00')
+      
       const { error } = await supabase.from('olhar_sessoes').insert({
         ...form,
+        data_sessao: dataBrasilia.toISOString(),
         analista_id: user.id,
         status: 'agendada',
       })
