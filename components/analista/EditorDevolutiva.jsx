@@ -261,9 +261,13 @@ export default function EditorDevolutiva({ devolutivaId, analiseIa, tags, opcoes
               </div>
               <textarea
                 value={acao.texto}
-                onChange={e => updateAcao(i, 'texto', e.target.value)}
-                rows={2}
-                className="w-full text-xs text-stone-700 font-light leading-relaxed resize-none outline-none border-b border-stone-100 focus:border-amber-400 pb-1 bg-transparent transition-colors"
+                onChange={e => {
+                  updateAcao(i, 'texto', e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                rows={4}
+                className="w-full text-xs text-stone-700 font-light leading-relaxed resize-none outline-none border-b border-stone-100 focus:border-amber-400 pb-1 bg-transparent transition-colors overflow-hidden"
               />
             </div>
             <button
