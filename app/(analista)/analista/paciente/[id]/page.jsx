@@ -21,6 +21,7 @@ export default function PacientePage() {
   const [gerando, setGerando] = useState(false)
   const [gerandoCiclo, setGerandoCiclo] = useState(false)
   const [confirmEnvio, setConfirmEnvio] = useState(false)
+  const [mostrarTodos, setMostrarTodos] = useState(false)
 
   useEffect(() => { load() }, [id])
 
@@ -156,9 +157,10 @@ export default function PacientePage() {
       </div>
 
       {/* abas de ciclos */}
-      {devolutivas.length > 0 && (
-        <div className="flex gap-0 border-b border-stone-200 mb-6 overflow-x-auto">
-          {devolutivas.map(d => (
+              {devolutivas.length > 0 && (
+        <div className="border-b border-stone-200 mb-6">
+          <div className="flex gap-0 overflow-x-auto">
+          {(mostrarTodos ? devolutivas : devolutivas.slice(-4)).map(d => (
             <button key={d.ciclo} onClick={() => setCicloAtivo(d.ciclo)}
               className={`text-sm px-5 py-2.5 border-b-2 whitespace-nowrap transition-colors flex items-center gap-2
                 ${cicloAtivo === d.ciclo
@@ -176,6 +178,15 @@ export default function PacientePage() {
               )}
             </button>
           ))}
+                 </div>
+          {devolutivas.length > 4 && (
+            <button
+              onClick={() => setMostrarTodos(t => !t)}
+              className="text-[11px] text-stone-400 hover:text-stone-600 px-4 py-1.5 transition-colors"
+            >
+              {mostrarTodos ? '← Mostrar menos' : `Ver ${devolutivas.length - 4} ciclos anteriores`}
+            </button>
+          )}
         </div>
       )}
 
