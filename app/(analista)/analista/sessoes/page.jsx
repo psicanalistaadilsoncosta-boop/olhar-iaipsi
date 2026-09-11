@@ -21,6 +21,7 @@ export default function SessoesPage() {
   const [form, setForm] = useState({ respondente_id: '', data_sessao: '', tipo: 'online', fuso_paciente: 'America/Sao_Paulo' })
   const [notas, setNotas] = useState('')
   const [saving, setSaving] = useState(false)
+  const [filtro, setFiltro] = useState('ativas')
 
   useEffect(() => { load() }, [])
 
@@ -99,8 +100,14 @@ export default function SessoesPage() {
     await load()
   }
 
+    const [filtro, setFiltro] = useState('ativas')
+
   const proximas = sessoes.filter(s => s.status === 'agendada')
-  const anteriores = sessoes.filter(s => s.status !== 'agendada')
+  const anteriores = sessoes.filter(s => {
+    if (filtro === 'ativas') return s.status === 'realizada'
+    if (filtro === 'canceladas') return s.status === 'cancelada'
+    return s.status !== 'agendada' // todas
+  })
 
   return (
     <div className="p-6 max-w-3xl">
@@ -180,12 +187,29 @@ export default function SessoesPage() {
             </section>
           )}
 
-          {/* Anteriores */}
-          {anteriores.length > 0 && (
-            <section>
-              <h2 className="text-[11px] font-semibold tracking-widest uppercase text-stone-400 mb-3">
+                   {/* Anteriores */}
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-[11px] font-semibold tracking-widest uppercase text-stone-400">
                 Histórico
               </h2>
+              <div className="flex gap-1">
+                {[
+                  { val: 'ativas', label: 'Realizadas' },
+                  { val: 'canceladas', label: 'Canceladas' },
+                  { val: 'todas', label: 'Todas' },
+                ].map(f => (
+                  <button key={f.val} onClick={() => setFiltro(f.val)}
+                    className={`text-[11px] px-3 py-1.5 rounded-full border transition-colors
+                      ${filtro === f.val
+                        ? 'border-amber-600 bg-amber-50 text-amber-700'
+                        : 'border-stone-200 text-stone-400 hover:text-stone-600'}`}>
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {anteriores.length > 0 ? (
               <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
                 {anteriores.map((s, i) => {
                   const cor = STATUS_COR[s.status]
@@ -212,9 +236,13 @@ export default function SessoesPage() {
                     </div>
                   )
                 })}
+                           </div>
+            ) : (
+              <div className="text-sm text-stone-400 font-light py-4">
+                Nenhuma sessão nesta categoria.
               </div>
-            </section>
-          )}
+            )}
+          </section>
 
           {sessoes.length === 0 && (
             <div className="text-center py-16 text-stone-400 text-sm font-light">
