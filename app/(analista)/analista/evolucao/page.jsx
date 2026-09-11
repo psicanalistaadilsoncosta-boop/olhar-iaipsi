@@ -88,7 +88,7 @@ function EvolucaoContent() {
           </p>
         </div>
                
-          href={`/api/relatorio-word?id=${respondente_id}`}
+          <a href={`/api/relatorio-word?id=${respondente_id}`}
           download
           className="px-5 py-2.5 rounded-full text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors flex items-center gap-2"
         >
