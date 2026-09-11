@@ -181,22 +181,60 @@ export async function GET(req) {
     children.push(quebraPagina())
 
     // 3. SITUAÇÕES EM PAUSA
-    if (puladas.length > 0) {
-      children.push(titulo('3. Situações ainda em pausa'))
-      puladas.forEach(r => {
-        const q = QUESTIONS[r.situacao_index]
-        children.push(label(`Situação ${r.situacao_index + 1} — ${r.bloco}`))
-        if (q?.text) children.push(corpo(q.text, true))
+        if (puladas.length > 0) {
+      children.push(titulo('3. Situações em pausa'))
 
-        // Hipótese se houver
-        devolutivas?.forEach(d => {
-          d.situacoes_puladas?.forEach(s => {
-            if (s.situacao_index === r.situacao_index && s.hipotese) {
-              children.push(corpo(`Hipótese clínica: ${s.hipotese}`))
-            }
-          })
+      // Verifica quais foram respondidas em ciclos posteriores
+      const respondidasPosteriormente = new Set()
+      devolutivas?.forEach(d => {
+        d.situacoes_retomadas?.forEach((s, i) => {
+          const resp = d.respostas_situacoes_retomadas?.[i]
+          if (resp && resp !== '__PULAR__' && resp !== '') {
+            respondidasPosteriormente.add(s.situacao_index)
+          }
         })
       })
+
+      const aindaPuladas = puladas.filter(r => !respondidasPosteriormente.has(r.situacao_index))
+      const respondidaDepois = puladas.filter(r => respondidasPosteriormente.has(r.situacao_index))
+
+      if (respondidaDepois.length > 0) {
+        children.push(subtitulo('Respondidas em ciclos posteriores'))
+        respondidaDepois.forEach(r => {
+          const q = QUESTIONS[r.situacao_index]
+          children.push(label(`Situação ${r.situacao_index + 1} — ${r.bloco}`))
+          if (q?.text) children.push(corpo(q.text, true))
+          // Busca a resposta
+          devolutivas?.forEach(d => {
+            d.situacoes_retomadas?.forEach((s, i) => {
+              if (s.situacao_index === r.situacao_index) {
+                const resp = d.respostas_situacoes_retomadas?.[i]
+                if (resp && resp !== '__PULAR__') {
+                  children.push(corpo(`Resposta (ciclo ${d.ciclo}): "${resp}"`, true))
+                }
+              }
+            })
+          })
+        })
+        children.push(separador())
+      }
+
+      if (aindaPuladas.length > 0) {
+        children.push(subtitulo('Ainda sem resposta'))
+        aindaPuladas.forEach(r => {
+          const q = QUESTIONS[r.situacao_index]
+          children.push(label(`Situação ${r.situacao_index + 1} — ${r.bloco}`))
+          if (q?.text) children.push(corpo(q.text, true))
+          devolutivas?.forEach(d => {
+            d.situacoes_puladas?.forEach(s => {
+              if (s.situacao_index === r.situacao_index && s.hipotese) {
+                children.push(corpo(`Hipótese clínica: ${s.hipotese}`))
+              }
+            })
+          })
+        })
+      }
+    }
       children.push(quebraPagina())
     }
 

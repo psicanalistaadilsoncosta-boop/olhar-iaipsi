@@ -223,37 +223,71 @@ function EvolucaoContent() {
             </div>
           </div>
 
-          {/* situações ainda em pausa */}
-          {puladas.length > 0 && (
-            <div className="bg-amber-50 rounded-xl border border-amber-100 overflow-hidden">
-              <div className="px-5 py-3 border-b border-amber-100">
-                <h2 className="text-xs font-semibold tracking-widest uppercase text-amber-700">
-                  Situações ainda em pausa ({puladas.length})
-                </h2>
-              </div>
-              <div className="px-5 py-3 flex flex-col gap-2">
-                {puladas.map((r, i) => {
-                  // Verifica se foi retomada em algum ciclo
-                  const foiRetomada = devolutivas.some(d =>
-                    d.situacoes_retomadas?.some(s => s.situacao_index === r.situacao_index)
-                  )
-                  return (
-                    <div key={i} className="flex items-center gap-2">
-                      <span className="text-[10px] px-2 py-0.5 rounded-full border border-amber-200 text-amber-600 bg-white">
-                        {r.bloco}
-                      </span>
-                      <span className="text-xs text-amber-800 font-light">
-                        Situação {r.situacao_index + 1}
-                      </span>
-                      {foiRetomada && (
-                        <span className="text-[10px] text-amber-500">↩ retomada</span>
-                      )}
+                    {/* situações em pausa */}
+          {puladas.length > 0 && (() => {
+            // Verifica quais foram respondidas em ciclos posteriores
+            const respondidasPosteriormente = new Set()
+            devolutivas.forEach(d => {
+              d.situacoes_retomadas?.forEach((s, i) => {
+                const resp = d.respostas_situacoes_retomadas?.[i]
+                if (resp && resp !== '__PULAR__' && resp !== '') {
+                  if (s.situacao_index !== undefined) respondidasPosteriormente.add(s.situacao_index)
+                }
+              })
+            })
+
+            const aindaPuladas = puladas.filter(r => !respondidasPosteriormente.has(r.situacao_index))
+            const respondidaDepois = puladas.filter(r => respondidasPosteriormente.has(r.situacao_index))
+
+            return (
+              <div className="flex flex-col gap-3">
+                {aindaPuladas.length > 0 && (
+                  <div className="bg-amber-50 rounded-xl border border-amber-100 overflow-hidden">
+                    <div className="px-5 py-3 border-b border-amber-100">
+                      <h2 className="text-xs font-semibold tracking-widest uppercase text-amber-700">
+                        Situações ainda em pausa ({aindaPuladas.length})
+                      </h2>
                     </div>
-                  )
-                })}
+                    <div className="px-5 py-3 flex flex-col gap-2">
+                      {aindaPuladas.map((r, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border border-amber-200 text-amber-600 bg-white">
+                            {r.bloco}
+                          </span>
+                          <span className="text-xs text-amber-800 font-light">
+                            Situação {r.situacao_index + 1}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {respondidaDepois.length > 0 && (
+                  <div className="bg-green-50 rounded-xl border border-green-100 overflow-hidden">
+                    <div className="px-5 py-3 border-b border-green-100">
+                      <h2 className="text-xs font-semibold tracking-widest uppercase text-green-700">
+                        Respondidas em ciclos posteriores ({respondidaDepois.length})
+                      </h2>
+                    </div>
+                    <div className="px-5 py-3 flex flex-col gap-2">
+                      {respondidaDepois.map((r, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border border-green-200 text-green-600 bg-white">
+                            {r.bloco}
+                          </span>
+                          <span className="text-xs text-green-800 font-light">
+                            Situação {r.situacao_index + 1}
+                          </span>
+                          <span className="text-[10px] text-green-500">✓ respondida</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-          )}
+            )
+          })()}
         </div>
 
         {/* coluna direita */}
