@@ -24,15 +24,44 @@ export default function QuestionarioPage() {
   const [saving, setSaving]       = useState(false)
   const [respondentId, setRespondentId] = useState(null)
 
-  useEffect(() => {
+   useEffect(() => {
     const stored = sessionStorage.getItem('olhar_respondente_id')
     if (stored) {
       setRespondentId(stored)
+      carregarRespostas(stored)
     }
-
-    // Se não tiver id, o paciente veio direto sem passar pela boas-vindas
-    // Nesse caso não salva progressivamente — só salva no final
   }, [])
+
+  async function carregarRespostas(respondente_id) {
+    try {
+      const res = await fetch(`/api/buscar-respostas?id=${respondente_id}`)
+      const data = await res.json()
+      if (!data.respostas) return
+
+      const newAnswers = Array(TOTAL).fill(null)
+      const newSkipped = Array(TOTAL).fill(false)
+
+      data.respostas.forEach(r => {
+        if (r.pulada) {
+          newSkipped[r.situacao_index] = true
+        } else {
+          if (r.resposta_texto) newAnswers[r.situacao_index] = r.resposta_texto
+          else if (r.resposta_opcao !== null) newAnswers[r.situacao_index] = r.resposta_opcao
+        }
+      })
+
+      setAnswers(newAnswers)
+      setSkipped(newSkipped)
+
+      // Avança para a primeira não respondida
+      const primeiraVazia = data.respostas.length < TOTAL
+        ? data.respostas.length
+        : TOTAL - 1
+      setCurrent(primeiraVazia)
+    } catch (err) {
+      console.error('Erro ao carregar respostas:', err)
+    }
+  }
 
   const question   = QUESTIONS[current]
   const blocoColor = BLOCOS_CORES[question.bloco] || '#C4732A'
