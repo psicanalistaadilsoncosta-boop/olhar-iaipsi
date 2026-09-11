@@ -264,7 +264,7 @@ export default function SessoesPage() {
                   className="w-full px-4 py-3 rounded-xl border border-stone-200 text-sm text-stone-800 outline-none focus:border-amber-400 bg-white font-light">
                   <option value="America/Sao_Paulo">Brasil — Brasília/SP (mesmo fuso)</option>
                   <option value="America/Manaus">Brasil — Manaus (−1h de Brasília)</option>
-                  <option value="America/New_York">EUA — Nova York / Miami (−2h de Brasília)</option>
+                  <option value="America/New_York">EUA — Nova York / Miami (−1h ou −2h conforme horário de verão)</option>
                   <option value="America/Chicago">EUA — Chicago (−3h de Brasília)</option>
                   <option value="America/Denver">EUA — Denver (−4h de Brasília)</option>
                   <option value="America/Los_Angeles">EUA — Los Angeles (−5h de Brasília)</option>
