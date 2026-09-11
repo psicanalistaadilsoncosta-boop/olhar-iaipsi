@@ -165,7 +165,7 @@ function EvolucaoContent() {
                                 Ver análise da IA
                               </summary>
                               <p className="text-xs text-stone-500 font-light leading-relaxed mt-2 pl-2 border-l-2 border-stone-100">
-                              {d.analise_ia.substring(0, 1200)}{d.analise_ia.length > 1200 ? '...' : ''}
+                                                             {d.analise_ia}
                               </p>
                             </details>
                           )}
