@@ -113,7 +113,7 @@ export default function AguardandoPage() {
               }}
             >
               Preciso reagendar
-            <            </button>
+                      </button>
           </div>
           )}
         </div>
