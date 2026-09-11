@@ -110,7 +110,12 @@ Gere SOMENTE um JSON valido, sem markdown, sem texto fora do JSON. Nao use aspas
         opcoes_enunciado: parsed.opcoes_enunciado,
         acoes: parsed.acoes,
         nota_supervisor: parsed.nota_supervisor,
-        situacoes_puladas: parsed.situacoes_puladas,
+          situacoes_puladas: parsed.situacoes_puladas?.map(s => {
+          const match = s.situacao?.match(/\d+/)
+          const idx = match ? parseInt(match[0]) - 1 : null
+          const q = idx !== null ? QUESTIONS[idx] : null
+          return { ...s, pergunta: q?.text || s.situacao }
+        }),
         status: 'rascunho',
       })
       .select('id')

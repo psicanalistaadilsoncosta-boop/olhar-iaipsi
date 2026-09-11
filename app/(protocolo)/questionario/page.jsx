@@ -43,7 +43,7 @@ export default function QuestionarioPage() {
     setSkipped(nextSkipped)
   }
 
-    async function handleNext() {
+     async function handleNext() {
     const answered = answers[current] !== null && answers[current] !== ''
     const isSkipped = skipped[current]
 
@@ -52,11 +52,35 @@ export default function QuestionarioPage() {
       return
     }
 
+    // Salva a resposta atual automaticamente
+    await saveResposta(current)
+
     if (current < TOTAL - 1) {
       setCurrent(c => c + 1)
       return
     }
     await saveAll()
+  }
+
+  async function saveResposta(index) {
+    const respondente_id = sessionStorage.getItem('olhar_respondente_id')
+    if (!respondente_id) return
+    const q = QUESTIONS[index]
+    const row = {
+      respondente_id,
+      ciclo: 1,
+      situacao_index: index,
+      bloco: q.bloco,
+      tipo_resposta: skipped[index] ? 'skip' : q.type,
+      resposta_texto: q.type === 'text' && !skipped[index] ? answers[index] : null,
+      resposta_opcao: ['images', 'select', 'scale'].includes(q.type) && !skipped[index] ? answers[index] : null,
+      pulada: skipped[index],
+    }
+    await fetch('/api/salvar-resposta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(row),
+    })
   }
 
   function handleBack() {
