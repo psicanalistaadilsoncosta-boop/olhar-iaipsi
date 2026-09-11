@@ -28,27 +28,11 @@ export default function QuestionarioPage() {
     const stored = sessionStorage.getItem('olhar_respondente_id')
     if (stored) {
       setRespondentId(stored)
-    } else {
-      criarRespondente()
     }
-  }, [])
 
-  async function criarRespondente() {
-    try {
-      const res = await fetch('/api/salvar-questionario', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ apenas_criar: true }),
-      })
-      const data = await res.json()
-      if (data.id) {
-        sessionStorage.setItem('olhar_respondente_id', data.id)
-        setRespondentId(data.id)
-      }
-    } catch (err) {
-      console.error('Erro ao criar respondente:', err)
-    }
-  }
+    // Se não tiver id, o paciente veio direto sem passar pela boas-vindas
+    // Nesse caso não salva progressivamente — só salva no final
+  }, [])
 
   const question   = QUESTIONS[current]
   const blocoColor = BLOCOS_CORES[question.bloco] || '#C4732A'
