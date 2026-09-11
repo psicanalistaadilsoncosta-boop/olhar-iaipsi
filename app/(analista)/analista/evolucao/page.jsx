@@ -87,12 +87,13 @@ function EvolucaoContent() {
             {respondente.email} · {totalCiclos} ciclos · desde {new Date(respondente.created_at).toLocaleDateString('pt-BR')}
           </p>
         </div>
-        <button
-          onClick={() => alert('Relatório Word — em breve')}
+               
+          href={`/api/relatorio-word?id=${respondente_id}`}
+          download
           className="px-5 py-2.5 rounded-full text-sm font-medium border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors flex items-center gap-2"
         >
           📄 Gerar relatório Word
-        </button>
+        </a>
       </div>
 
       {/* cards resumo */}
