@@ -81,7 +81,7 @@ export async function POST(req) {
         }).join('\n\n')
       : null
 
-    // Situações puladas do questionário
+        // Situações puladas do questionário
     const { data: respostas } = await supabase
       .from('olhar_respostas')
       .select('*')
@@ -89,14 +89,35 @@ export async function POST(req) {
       .eq('ciclo', 1)
       .eq('pulada', true)
 
-        const puladas = respostas?.map(r => {
+    // Quais já foram respondidas em ciclos anteriores
+    const { data: todasDevolutivas } = await supabase
+      .from('olhar_devolutivas')
+      .select('situacoes_retomadas, respostas_situacoes_retomadas')
+      .eq('respondente_id', respondente_id)
+      .neq('status', 'rascunho')
+
+    const jaRespondidas = new Set()
+    todasDevolutivas?.forEach(d => {
+      d.situacoes_retomadas?.forEach((s, i) => {
+        const resp = d.respostas_situacoes_retomadas?.[i]
+        if (resp && resp !== '__PULAR__' && resp !== '') {
+          const match = s.situacao?.match(/\d+/)
+          if (match) jaRespondidas.add(parseInt(match[0]) - 1)
+        }
+      })
+    })
+
+    // Filtra só as que ainda não foram respondidas
+    const puladasFiltradas = respostas?.filter(r => !jaRespondidas.has(r.situacao_index)) || []
+
+    const puladas = puladasFiltradas.map(r => {
       const q = QUESTIONS[r.situacao_index]
       return `Situacao ${r.situacao_index + 1} [${r.bloco}]: ${q?.text}`
     }).join('\n') || ''
 
         // Indexado por situacao_index para match correto
-    const puladasMap = {}
-    respostas?.forEach(r => {
+        const puladasMap = {}
+    puladasFiltradas.forEach(r => {
       const q = QUESTIONS[r.situacao_index]
       puladasMap[r.situacao_index] = { situacao_index: r.situacao_index, bloco: r.bloco, pergunta: q?.text || '' }
     })
