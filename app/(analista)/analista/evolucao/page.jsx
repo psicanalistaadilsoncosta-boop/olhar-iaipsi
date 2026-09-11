@@ -158,11 +158,28 @@ function EvolucaoContent() {
                             </div>
                           )}
 
+                                                    {/* análise da IA — resumo */}
+                          {d.analise_ia && (
+                            <details className="mt-2">
+                              <summary className="text-[11px] text-stone-400 cursor-pointer hover:text-stone-600 transition-colors select-none">
+                                Ver análise da IA
+                              </summary>
+                              <p className="text-xs text-stone-500 font-light leading-relaxed mt-2 pl-2 border-l-2 border-stone-100">
+                                {d.analise_ia.substring(0, 400)}{d.analise_ia.length > 400 ? '...' : ''}
+                              </p>
+                            </details>
+                          )}
+
                           {/* resposta do paciente */}
                           {d.resposta_paciente && (
-                            <p className="text-xs text-stone-500 font-light italic line-clamp-1">
-                              "{d.resposta_paciente}"
-                            </p>
+                            <details className="mt-2">
+                              <summary className="text-[11px] text-stone-400 cursor-pointer hover:text-stone-600 transition-colors select-none">
+                                Como soou para o paciente
+                              </summary>
+                              <p className="text-xs text-stone-500 font-light italic mt-2 pl-2 border-l-2 border-amber-100">
+                                "{d.resposta_paciente}"
+                              </p>
+                            </details>
                           )}
                         </div>
 
