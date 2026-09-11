@@ -195,7 +195,6 @@ function HomeContent() {
               href="/termos"
               className="underline"
               style={{ color: 'rgba(196,115,42,0.8)' }}
-            >
               Termos de Uso e Política de Privacidade
             </a>
           </span>
