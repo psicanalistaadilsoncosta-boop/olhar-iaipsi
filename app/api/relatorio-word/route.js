@@ -219,7 +219,7 @@ export async function GET(req) {
         children.push(separador())
       }
 
-      if (aindaPuladas.length > 0) {
+            if (aindaPuladas.length > 0) {
         children.push(subtitulo('Ainda sem resposta'))
         aindaPuladas.forEach(r => {
           const q = QUESTIONS[r.situacao_index]
@@ -234,7 +234,7 @@ export async function GET(req) {
           })
         })
       }
-    }
+
       children.push(quebraPagina())
     }
 
