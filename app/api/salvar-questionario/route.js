@@ -7,8 +7,18 @@ const supabase = createClient(
 
 export async function POST(req) {
   try {
-    const body = await req.json()
-    const { respondente_id, respostas } = body
+        const body = await req.json()
+    const { respondente_id, respostas, apenas_criar } = body
+
+    if (apenas_criar) {
+      const { data, error } = await supabase
+        .from('olhar_respondentes')
+        .insert({ status: 'questionario' })
+        .select('id')
+        .single()
+      if (error) throw error
+      return Response.json({ id: data.id })
+    }
 
     if (!respondente_id) {
       return Response.json({ error: 'Token inválido' }, { status: 400 })

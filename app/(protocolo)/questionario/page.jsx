@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { QUESTIONS, TOTAL } from '@/lib/questions'
 import QuestionCard from '@/components/protocolo/QuestionCard'
@@ -18,10 +18,37 @@ const BLOCOS_CORES = {
 export default function QuestionarioPage() {
   const router = useRouter()
 
-  const [current, setCurrent]     = useState(0)
+    const [current, setCurrent]     = useState(0)
   const [answers, setAnswers]     = useState(Array(TOTAL).fill(null))
   const [skipped, setSkipped]     = useState(Array(TOTAL).fill(false))
   const [saving, setSaving]       = useState(false)
+  const [respondentId, setRespondentId] = useState(null)
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem('olhar_respondente_id')
+    if (stored) {
+      setRespondentId(stored)
+    } else {
+      criarRespondente()
+    }
+  }, [])
+
+  async function criarRespondente() {
+    try {
+      const res = await fetch('/api/salvar-questionario', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apenas_criar: true }),
+      })
+      const data = await res.json()
+      if (data.id) {
+        sessionStorage.setItem('olhar_respondente_id', data.id)
+        setRespondentId(data.id)
+      }
+    } catch (err) {
+      console.error('Erro ao criar respondente:', err)
+    }
+  }
 
   const question   = QUESTIONS[current]
   const blocoColor = BLOCOS_CORES[question.bloco] || '#C4732A'
