@@ -17,7 +17,7 @@ export default function Sidebar({ pacientes = [] }) {
   const navItems = [
     { href: '/analista/dashboard', label: 'Devolutivas', icon: 'ti-inbox',    badge: pacientes.filter(p => p.status === 'aguardando').length },
     { href: '/analista/sessoes',   label: 'Sessões',     icon: 'ti-calendar', badge: 0 },
-    { href: '/analista/evolucao',  label: 'Evolução',    icon: 'ti-chart-bar',badge: 0 },
+    { href: '/analista/dashboard', label: 'Evolução',    icon: 'ti-chart-bar',badge: 0 },
   ]
 
   return (

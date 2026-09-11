@@ -147,6 +147,11 @@ export default function PacientePage() {
         </div>
 
         {/* botão gerar análise inicial */}
+               <a href={`/analista/evolucao?id=${id}`}
+          className="px-4 py-2 rounded-full text-sm border border-stone-200 text-stone-500 hover:bg-stone-50 transition-colors">
+          Ver evolução →
+        </a>
+
         {devolutivas.length === 0 && respostas.length > 0 && (
           <button onClick={gerarAnalise} disabled={gerando}
             className="px-5 py-2.5 rounded-full text-sm font-medium text-white transition-all hover:-translate-y-0.5 disabled:opacity-60"
