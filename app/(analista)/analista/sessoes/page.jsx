@@ -100,8 +100,6 @@ export default function SessoesPage() {
     await load()
   }
 
-    const [filtro, setFiltro] = useState('ativas')
-
   const proximas = sessoes.filter(s => s.status === 'agendada')
   const anteriores = sessoes.filter(s => {
     if (filtro === 'ativas') return s.status === 'realizada'
