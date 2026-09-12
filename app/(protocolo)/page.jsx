@@ -64,13 +64,14 @@ export default function PaginaInicial() {
           </div>
         </div>
 
-                       {/* scroll hint → FAQ */}
+                  {/* scroll hint → FAQ */}
         
           <a href="#faq"
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity"
+          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity"
+          style={{ transform: 'translateX(-50%)' }}
         >
-          <span className="text-xs text-stone-100 font-light">saiba mais</span>
-          <div className="w-px h-8 bg-stone-100/50 animate-pulse" />
+          <span className="text-xs text-stone-100 font-light tracking-widest uppercase">saiba mais</span>
+          <div className="w-px h-10 bg-stone-100/50 animate-pulse" />
         </a>
       </section>
 
@@ -225,9 +226,9 @@ export default function PaginaInicial() {
               p: 'Como funciona o processo?',
               r: 'Você começa respondendo 30 situações de reflexão organizadas em 6 temas. Seu analista lê tudo, prepara uma devolutiva e a envia. Você tem 7 dias para responder e registrar o que vivenciou. O analista então prepara o próximo ciclo. A cada 3 ciclos, há uma sessão online ao vivo de aproximadamente 50 minutos para aprofundar o processo.',
             },
-            {
+                        {
               p: 'Quanto tempo leva cada ciclo?',
-              r: 'Em média 9 a 10 dias por ciclo — 7 dias para você responder e até 48 horas para o analista preparar o próximo envio. O ritmo é flexível: atrasos são esperados e fazem parte da dinâmica do processo.',
+              r: 'Em média 9 a 10 dias por ciclo. Você tem 7 dias para responder e registrar o que vivenciou com as ações propostas — no seu tempo, sem pressão. Após receber sua resposta, seu analista tem até 48 horas para preparar e enviar o próximo ciclo.',
             },
             {
               p: 'Como é a sessão online?',
