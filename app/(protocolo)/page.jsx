@@ -44,7 +44,7 @@ export default function PaginaInicial() {
             Autodesenvolvimento psicanalítico guiado. No seu tempo, com um profissional presente.
           </p>
 
-          <div className="flex gap-4 justify-center flex-wrap">
+         <div className="flex gap-4 justify-center flex-wrap mb-20">
             
               <a href="https://wa.me/5511945098763?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20Olhar"
               target="_blank"
@@ -64,15 +64,13 @@ export default function PaginaInicial() {
           </div>
         </div>
 
-                  {/* scroll hint → FAQ */}
+            {/* scroll hint → FAQ */}
         
           <a href="#faq"
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity"
-          style={{ transform: 'translateX(-50%)' }}
-        >
-          <span className="text-xs text-stone-100 font-light tracking-widest uppercase">saiba mais</span>
-          <div className="w-px h-10 bg-stone-100/50 animate-pulse" />
-        </a>
+          className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity">
+          <span className="text-xs text-stone-100 font-light tracking-widest uppercase">F.A.Q</span>
+          <div className="w-px h-10 bg-stone-100/50 animate-pulse" /></a>
+        
       </section>
 
       {/* COMO FUNCIONA */}
