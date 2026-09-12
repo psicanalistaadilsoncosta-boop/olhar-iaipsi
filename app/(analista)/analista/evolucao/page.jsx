@@ -22,6 +22,11 @@ function EvolucaoContent() {
   const [supAtiva, setSupAtiva] = useState(null)
   const [analiseEditada, setAnaliseEditada] = useState('')
   const [salvando, setSalvando] = useState(false)
+  const [hipoteses, setHipoteses] = useState([])
+  const [extraindo, setExtraindo] = useState(false)
+  const [hipoteseAtiva, setHipoteseAtiva] = useState(null)
+  const [analisandoHip, setAnalisandoHip] = useState(false)
+  const [analiseHip, setAnaliseHip] = useState(null)
 
   useEffect(() => { if (respondente_id) load() }, [respondente_id])
 
@@ -45,7 +50,52 @@ function EvolucaoContent() {
     setLoading(false)
   }
 
-   async function gerarSupervisao() {
+     async function extrairHipoteses() {
+    if (!supAtiva) return
+    setExtraindo(true)
+    setHipoteses([])
+    setHipoteseAtiva(null)
+    setAnaliseHip(null)
+    try {
+      const res = await fetch('/api/hipoteses-extrair', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ supervisao_id: supAtiva.id }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setHipoteses(data.hipoteses || [])
+    } catch (err) {
+      alert('Erro ao extrair hipóteses: ' + err.message)
+    } finally {
+      setExtraindo(false)
+    }
+  }
+
+  async function analisarHipotese(hip) {
+    setHipoteseAtiva(hip)
+    setAnalisandoHip(true)
+    setAnaliseHip(null)
+    try {
+      const res = await fetch('/api/hipoteses-analisar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          hipotese: hip,
+          contexto_caso: supAtiva?.texto_caso || '',
+        }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setAnaliseHip(data)
+    } catch (err) {
+      alert('Erro ao analisar hipótese: ' + err.message)
+    } finally {
+      setAnalisandoHip(false)
+    }
+  }
+
+  async function gerarSupervisao() {
     setGerandoSup(true)
     try {
       const ultimaSup = supervisoes[0]
@@ -267,12 +317,177 @@ function EvolucaoContent() {
                       </button>
                     </div>
                   </div>
-                  <textarea
+                                    <textarea
                     value={analiseEditada}
                     onChange={e => setAnaliseEditada(e.target.value)}
                     className="w-full px-5 py-4 text-sm text-stone-700 font-light leading-relaxed resize-none outline-none border-none"
-                    style={{ minHeight: '600px' }}
+                    style={{ minHeight: '400px' }}
                   />
+
+                  {/* Mapa de hipóteses */}
+                  <div className="border-t border-stone-100 px-5 py-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-xs font-semibold tracking-widest uppercase text-stone-400">
+                        Mapa de hipóteses
+                      </h3>
+                      <button onClick={extrairHipoteses} disabled={extraindo}
+                        className="text-xs px-3 py-1.5 rounded-full border border-stone-200 text-stone-500 hover:bg-stone-50 disabled:opacity-50 transition-colors">
+                        {extraindo ? 'Extraindo...' : hipoteses.length > 0 ? '↺ Reextrair' : '✦ Extrair hipóteses'}
+                      </button>
+                    </div>
+
+                    {/* círculos das hipóteses */}
+                    {hipoteses.length > 0 && (
+                      <div className="flex flex-wrap gap-3 mb-6">
+                        {hipoteses.map(h => (
+                          <button
+                            key={h.numero}
+                            onClick={() => analisarHipotese(h)}
+                            className={`
+                              flex flex-col items-center gap-1.5 transition-all
+                              ${hipoteseAtiva?.numero === h.numero ? 'opacity-100' : 'opacity-70 hover:opacity-100'}
+                            `}
+                          >
+                            <div
+                              className={`
+                                w-14 h-14 rounded-full flex items-center justify-center text-lg font-light border-2 transition-all
+                                ${hipoteseAtiva?.numero === h.numero
+                                  ? 'border-amber-600 bg-amber-50 shadow-md scale-110'
+                                  : 'border-stone-200 bg-white hover:border-amber-400 hover:bg-amber-50'}
+                              `}
+                              style={{ fontFamily: "'Playfair Display', serif" }}
+                            >
+                              {String(h.numero).padStart(2, '0')}
+                            </div>
+                            <span className="text-[10px] text-stone-500 font-light text-center max-w-[80px] leading-tight">
+                              {h.titulo}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* painel da hipótese selecionada */}
+                    {analisandoHip && (
+                      <div className="text-center py-8 text-stone-400 text-sm font-light">
+                        Analisando hipótese {hipoteseAtiva?.numero}...
+                      </div>
+                    )}
+
+                    {analiseHip && !analisandoHip && (
+                      <div className="flex flex-col gap-4">
+
+                        {/* hipótese */}
+                        <div className="bg-stone-50 rounded-xl p-4 border border-stone-100">
+                          <div className="text-[11px] font-semibold tracking-widest uppercase text-stone-400 mb-2">
+                            Hipótese {hipoteseAtiva?.numero}
+                          </div>
+                          <p className="text-sm text-stone-700 font-light leading-relaxed"
+                            style={{ fontFamily: "'Playfair Display', serif" }}>
+                            {analiseHip.hipotese?.texto}
+                          </p>
+                          {analiseHip.pergunta_central && (
+                            <p className="text-xs text-amber-700 italic mt-3 pt-3 border-t border-stone-200">
+                              ✦ {analiseHip.pergunta_central}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* escolas */}
+                        {analiseHip.escolas?.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-semibold tracking-widest uppercase text-stone-400 mb-2">
+                              Sustentação teórica
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              {analiseHip.escolas.map((e, i) => (
+                                <div key={i} className="bg-white rounded-xl border border-stone-200 p-3">
+                                  <div className="flex items-center gap-2 mb-1.5">
+                                    <span className="text-xs font-medium text-stone-800">{e.nome}</span>
+                                    <div className="flex gap-1">
+                                      {e.conceitos?.map(c => (
+                                        <span key={c} className="text-[10px] px-2 py-0.5 rounded-full"
+                                          style={{ background: '#EAF4EE', color: '#2D6A4F' }}>
+                                          {c}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <p className="text-xs text-stone-500 font-light leading-relaxed">{e.sustentacao}</p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* cenários */}
+                        {analiseHip.cenarios?.length > 0 && (
+                          <div>
+                            <div className="text-[11px] font-semibold tracking-widest uppercase text-stone-400 mb-2">
+                              3 cenários possíveis
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              {analiseHip.cenarios.map(c => {
+                                const corProb = c.probabilidade === 'alta' ? '#2D6A4F' :
+                                  c.probabilidade === 'média' ? '#C4732A' : '#9A8E82'
+                                return (
+                                  <div key={c.numero} className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                                    <div className="flex items-center gap-3 px-4 py-2.5 border-b border-stone-100">
+                                      <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium text-white flex-shrink-0"
+                                        style={{ background: corProb }}>
+                                        {c.numero}
+                                      </div>
+                                      <span className="text-sm font-medium text-stone-800">{c.titulo}</span>
+                                      <span className="ml-auto text-[10px] px-2 py-0.5 rounded-full font-medium"
+                                        style={{ background: corProb + '18', color: corProb }}>
+                                        {c.probabilidade}
+                                      </span>
+                                    </div>
+                                    <div className="px-4 py-3">
+                                      <p className="text-xs text-stone-600 font-light leading-relaxed mb-3">{c.descricao}</p>
+                                      <div className="flex gap-3">
+                                        <div className="flex-1">
+                                          <div className="text-[10px] font-medium text-green-700 mb-1">✓ Positivo</div>
+                                          {c.consequencias_positivas?.map((cp, i) => (
+                                            <p key={i} className="text-[11px] text-stone-500 font-light leading-snug mb-0.5">• {cp}</p>
+                                          ))}
+                                        </div>
+                                        <div className="flex-1">
+                                          <div className="text-[10px] font-medium text-red-600 mb-1">⚠ Risco</div>
+                                          {c.consequencias_negativas?.map((cn, i) => (
+                                            <p key={i} className="text-[11px] text-stone-500 font-light leading-snug mb-0.5">• {cn}</p>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* próximos passos */}
+                        {analiseHip.proximos_passos?.length > 0 && (
+                          <div className="bg-white rounded-xl border border-stone-200 p-4">
+                            <div className="text-[11px] font-semibold tracking-widest uppercase text-stone-400 mb-3">
+                              Próximos passos clínicos
+                            </div>
+                            {analiseHip.proximos_passos.map((p, i) => (
+                              <div key={i} className="flex gap-2.5 mb-2 last:mb-0">
+                                <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-medium text-white flex-shrink-0 mt-0.5"
+                                  style={{ background: '#1A2E25' }}>
+                                  {i + 1}
+                                </div>
+                                <p className="text-xs text-stone-600 font-light leading-relaxed">{p}</p>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 <div className="flex items-center justify-center h-64 text-stone-400 text-sm font-light text-center">
