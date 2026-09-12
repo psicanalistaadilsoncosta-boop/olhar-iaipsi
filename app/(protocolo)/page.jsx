@@ -69,7 +69,7 @@ export default function PaginaInicial() {
           <a href="#faq"
           className="absolute bottom-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity">
           <span className="text-xs text-stone-100 font-light tracking-widest uppercase">F.A.Q</span>
-          <div className="w-px h-10 bg-stone-100/50 animate-pulse" /></a>
+          </a>
         
       </section>
 
