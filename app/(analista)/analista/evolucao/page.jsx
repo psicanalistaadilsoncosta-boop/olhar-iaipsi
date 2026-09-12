@@ -248,15 +248,24 @@ function EvolucaoContent() {
             <div className="flex-1">
               {supAtiva ? (
                 <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
-                  <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
+                                   <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
                     <h2 className="text-xs font-semibold tracking-widest uppercase text-stone-400">
                       Análise de supervisão
                     </h2>
-                    <button onClick={salvarSupervisao} disabled={salvando}
-                      className="text-xs px-4 py-1.5 rounded-full text-white font-medium disabled:opacity-50"
-                      style={{ background: '#2D6A4F' }}>
-                      {salvando ? 'Salvando...' : '✓ Salvar e finalizar'}
-                    </button>
+                    <div className="flex gap-2">
+                      {supAtiva?.status === 'finalizada' && (
+                        
+                          <a href={`/api/supervisao-word?id=${supAtiva.id}`}
+                          className="text-xs px-4 py-1.5 rounded-full border border-stone-200 text-stone-600 hover:bg-stone-50 transition-colors">
+                          📄 Word
+                        </a>
+                      )}
+                      <button onClick={salvarSupervisao} disabled={salvando}
+                        className="text-xs px-4 py-1.5 rounded-full text-white font-medium disabled:opacity-50"
+                        style={{ background: '#2D6A4F' }}>
+                        {salvando ? 'Salvando...' : '✓ Salvar e finalizar'}
+                      </button>
+                    </div>
                   </div>
                   <textarea
                     value={analiseEditada}
