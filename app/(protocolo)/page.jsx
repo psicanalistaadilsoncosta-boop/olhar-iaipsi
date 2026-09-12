@@ -183,7 +183,7 @@ export default function PaginaInicial() {
           Fale pelo WhatsApp para conhecer melhor e dar o primeiro passo.
         </p>
         
-          href="https://wa.me/5511945098763?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20Olhar"
+          <a href="https://wa.me/5511945098763?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20Olhar"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-3 px-10 py-4 rounded-full text-stone-100 font-medium text-base transition-all hover:-translate-y-1"
