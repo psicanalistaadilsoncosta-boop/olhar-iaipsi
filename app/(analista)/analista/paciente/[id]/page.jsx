@@ -125,7 +125,7 @@ export default function PacientePage() {
             <h1 className="text-lg text-stone-800" style={{ fontFamily: "'Playfair Display', serif", fontWeight: 400 }}>
               {respondente.nome || 'Sem nome'}
             </h1>
-                                  <p className="text-xs text-stone-400 font-light">
+              <p className="text-xs text-stone-400 font-light">
               {respondente.email} · Ciclo {respondente.ciclo_atual} · {respondidas} respondidas · {puladas} em pausa
               {respondente.termos_aceitos_at && (
                 <span className="ml-2 text-green-600">
