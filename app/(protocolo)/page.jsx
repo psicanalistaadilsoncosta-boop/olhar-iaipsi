@@ -66,7 +66,7 @@ export default function PaginaInicial() {
 
                        {/* scroll hint → FAQ */}
         
-          href="#faq"
+          <a href="#faq"
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40 hover:opacity-70 transition-opacity"
         >
           <span className="text-xs text-stone-100 font-light">saiba mais</span>
