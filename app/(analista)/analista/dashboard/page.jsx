@@ -25,6 +25,11 @@ export default async function DashboardPage() {
     .neq('status', 'encerrado')
     .order('created_at', { ascending: false })
 
+   function getPrazoStatus(respondente) {
+    // busca última devolutiva — não temos aqui, então só mostramos o status
+    return null
+  }
+
   const STATUS_LABEL = {
     questionario: 'Respondendo',
     aguardando:   'Aguarda devolutiva',

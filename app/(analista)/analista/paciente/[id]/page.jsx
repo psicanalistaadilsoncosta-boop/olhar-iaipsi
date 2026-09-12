@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import RespostasBlocos from '@/components/analista/RespostasBlocos'
 import EditorDevolutiva from '@/components/analista/EditorDevolutiva'
+import PrazoBarra from '@/components/analista/PrazoBarra'
 
 const CORES = { fiz: '#2D6A4F', tentei: '#C4732A', nao_consegui: '#B04A4A', nao_tentei: '#9A8E82' }
 const LABELS = { fiz: '✓ Fiz', tentei: '~ Tentei', nao_consegui: '✗ Não consegui', nao_tentei: '○ Ainda não tentei' }
@@ -198,6 +199,11 @@ export default function PacientePage() {
             </button>
           )}
         </div>
+      )}
+
+            {/* barra de prazo */}
+      {devAtiva && (
+        <PrazoBarra devolutiva={devAtiva} respondente={respondente} />
       )}
 
       {/* conteúdo do ciclo ativo */}

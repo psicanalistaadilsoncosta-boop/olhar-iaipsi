@@ -47,10 +47,25 @@ Extraia todas as hipóteses presentes na seção de hipóteses clínicas. Se nã
       messages: [{ role: 'user', content: prompt }],
     })
 
-    const raw = response.content[0].text.trim()
-      .replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim()
-
-    const parsed = JSON.parse(raw)
+        let parsed
+    let tentativas = 0
+    while (tentativas < 3) {
+      const tentativaResponse = tentativas === 0 ? response : await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: tentativas === 0 ? 2000 : 2000,
+        messages: [{ role: 'user', content: prompt }],
+      })
+      const tentativaRaw = tentativaResponse.content[0].text.trim()
+        .replace(/^```json\s*/i, '').replace(/```\s*$/i, '').trim()
+      try {
+        parsed = JSON.parse(tentativaRaw)
+        break
+      } catch {
+        tentativas++
+        if (tentativas >= 3) throw new Error('Não foi possível gerar JSON válido após 3 tentativas.')
+        console.log(`[json-retry] tentativa ${tentativas + 1}...`)
+      }
+    }
     return Response.json(parsed)
   } catch (err) {
     console.error('[hipoteses-extrair]', err)
