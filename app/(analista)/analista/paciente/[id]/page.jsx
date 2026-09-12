@@ -22,7 +22,7 @@ export default function PacientePage() {
   const [cicloAtivo, setCicloAtivo] = useState(null) // número do ciclo selecionado na aba
   const [loading, setLoading] = useState(true)
   const [gerando, setGerando] = useState(false)
-  const [sessoes, setSessoes] = useState([]))
+  const [sessoes, setSessoes] = useState([])
   const [gerandoCiclo, setGerandoCiclo] = useState(false)
   const [confirmEnvio, setConfirmEnvio] = useState(false)
   const [mostrarTodos, setMostrarTodos] = useState(false)
