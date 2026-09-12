@@ -15,24 +15,79 @@ function EvolucaoContent() {
   const [sessoes, setSessoes] = useState([])
   const [respostas, setRespostas] = useState([])
   const [loading, setLoading] = useState(true)
+  const [abaSup, setAbaSup] = useState(false)
+  const [abordagens, setAbordagens] = useState(['geral'])
+  const [gerandoSup, setGerandoSup] = useState(false)
+  const [supervisoes, setSupervisoes] = useState([])
+  const [supAtiva, setSupAtiva] = useState(null)
+  const [analiseEditada, setAnaliseEditada] = useState('')
+  const [salvando, setSalvando] = useState(false)
 
   useEffect(() => { if (respondente_id) load() }, [respondente_id])
 
   async function load() {
     setLoading(true)
-    const [{ data: r }, { data: devs }, { data: sess }, { data: res }] = await Promise.all([
+        const [{ data: r }, { data: devs }, { data: sess }, { data: res }, { data: sups }] = await Promise.all([
       supabase.from('olhar_respondentes').select('*').eq('id', respondente_id).single(),
       supabase.from('olhar_devolutivas').select('*').eq('respondente_id', respondente_id)
         .neq('status', 'rascunho').order('ciclo'),
       supabase.from('olhar_sessoes').select('*').eq('respondente_id', respondente_id)
         .order('data_sessao'),
       supabase.from('olhar_respostas').select('*').eq('respondente_id', respondente_id),
+      supabase.from('olhar_supervisoes').select('*').eq('respondente_id', respondente_id)
+        .order('created_at', { ascending: false }),
     ])
     setRespondente(r)
     setDevolutivas(devs || [])
     setSessoes(sess || [])
     setRespostas(res || [])
+    setSupervisoes(sups || [])
     setLoading(false)
+  }
+
+   async function gerarSupervisao() {
+    setGerandoSup(true)
+    try {
+      const ultimaSup = supervisoes[0]
+      const res = await fetch('/api/supervisao-caso', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          respondente_id,
+          abordagens,
+          supervisao_anterior_id: ultimaSup?.id || null,
+        }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      setSupAtiva({ id: data.id, analise_bruta: data.analise, analise_editada: data.analise })
+      setAnaliseEditada(data.analise)
+      await load()
+    } catch (err) {
+      alert('Erro: ' + err.message)
+    } finally {
+      setGerandoSup(false)
+    }
+  }
+
+  async function salvarSupervisao() {
+    if (!supAtiva) return
+    setSalvando(true)
+    try {
+      const res = await fetch('/api/supervisao-caso', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: supAtiva.id, analise_editada: analiseEditada, status: 'finalizada' }),
+      })
+      const data = await res.json()
+      if (data.error) throw new Error(data.error)
+      await load()
+      alert('Supervisão salva.')
+    } catch (err) {
+      alert('Erro: ' + err.message)
+    } finally {
+      setSalvando(false)
+    }
   }
 
   if (!respondente_id) return (
@@ -96,6 +151,133 @@ function EvolucaoContent() {
         </a>
       </div>
 
+            {/* tabs evolução / supervisão */}
+      <div className="flex gap-0 border-b border-stone-200 mb-6">
+        <button onClick={() => setAbaSup(false)}
+          className={`text-sm px-5 py-2.5 border-b-2 transition-colors ${!abaSup ? 'border-amber-600 text-stone-800 font-medium' : 'border-transparent text-stone-400 hover:text-stone-600'}`}>
+          Evolução
+        </button>
+        <button onClick={() => setAbaSup(true)}
+          className={`text-sm px-5 py-2.5 border-b-2 transition-colors ${abaSup ? 'border-amber-600 text-stone-800 font-medium' : 'border-transparent text-stone-400 hover:text-stone-600'}`}>
+          Supervisão
+          {supervisoes.length > 0 && (
+            <span className="ml-2 text-[10px] bg-stone-100 text-stone-500 px-2 py-0.5 rounded-full">
+              {supervisoes.length}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {abaSup ? (
+        <div className="max-w-4xl">
+          {/* painel de supervisão */}
+          <div className="flex gap-5">
+
+            {/* col esquerda — gerar nova */}
+            <div className="w-72 flex-shrink-0 flex flex-col gap-4">
+              <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                <div className="px-4 py-3 border-b border-stone-100">
+                  <h2 className="text-xs font-semibold tracking-widest uppercase text-stone-400">
+                    Nova análise de supervisão
+                  </h2>
+                </div>
+                <div className="px-4 py-4 flex flex-col gap-3">
+                  <div className="text-xs text-stone-500 font-light">Abordagens teóricas:</div>
+                  {Object.entries({
+                    geral: 'Geral / Integrativa',
+                    freudiana: 'Freudiana',
+                    lacaniana: 'Lacaniana',
+                    winnicottiana: 'Winnicottiana',
+                    bioniana: 'Bioniana',
+                  }).map(([key, label]) => (
+                    <label key={key} className="flex items-center gap-2 cursor-pointer">
+                      <input type="checkbox"
+                        checked={abordagens.includes(key)}
+                        onChange={e => setAbordagens(prev =>
+                          e.target.checked ? [...prev, key] : prev.filter(a => a !== key)
+                        )}
+                        className="accent-amber-600"
+                      />
+                      <span className="text-xs text-stone-600 font-light">{label}</span>
+                    </label>
+                  ))}
+                  <button onClick={gerarSupervisao} disabled={gerandoSup || abordagens.length === 0}
+                    className="w-full mt-2 py-2.5 rounded-xl text-sm font-medium text-white disabled:opacity-50 transition-all"
+                    style={{ background: '#1A2E25' }}>
+                    {gerandoSup ? 'Gerando...' : 'Gerar supervisão →'}
+                  </button>
+                  {supervisoes.length > 0 && (
+                    <p className="text-[10px] text-stone-400 text-center font-light">
+                      Considera a supervisão anterior como referência
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* histórico de supervisões */}
+              {supervisoes.length > 0 && (
+                <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-stone-100">
+                    <h2 className="text-xs font-semibold tracking-widest uppercase text-stone-400">
+                      Histórico
+                    </h2>
+                  </div>
+                  {supervisoes.map((s, i) => (
+                    <button key={s.id} onClick={() => {
+                      setSupAtiva(s)
+                      setAnaliseEditada(s.analise_editada || s.analise_bruta)
+                    }}
+                      className={`w-full text-left px-4 py-3 border-b border-stone-50 last:border-0 transition-colors hover:bg-stone-50
+                        ${supAtiva?.id === s.id ? 'bg-amber-50' : ''}`}>
+                      <div className="text-xs font-medium text-stone-700">
+                        Supervisão {supervisoes.length - i}
+                      </div>
+                      <div className="text-[10px] text-stone-400 font-light">
+                        {new Date(s.created_at).toLocaleDateString('pt-BR')} · {s.abordagens?.join(', ')}
+                      </div>
+                      <div className={`text-[10px] mt-0.5 ${s.status === 'finalizada' ? 'text-green-600' : 'text-amber-600'}`}>
+                        {s.status === 'finalizada' ? '✓ Finalizada' : '● Rascunho'}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* col direita — análise */}
+            <div className="flex-1">
+              {supAtiva ? (
+                <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+                  <div className="flex items-center justify-between px-5 py-3 border-b border-stone-100">
+                    <h2 className="text-xs font-semibold tracking-widest uppercase text-stone-400">
+                      Análise de supervisão
+                    </h2>
+                    <button onClick={salvarSupervisao} disabled={salvando}
+                      className="text-xs px-4 py-1.5 rounded-full text-white font-medium disabled:opacity-50"
+                      style={{ background: '#2D6A4F' }}>
+                      {salvando ? 'Salvando...' : '✓ Salvar e finalizar'}
+                    </button>
+                  </div>
+                  <textarea
+                    value={analiseEditada}
+                    onChange={e => setAnaliseEditada(e.target.value)}
+                    className="w-full px-5 py-4 text-sm text-stone-700 font-light leading-relaxed resize-none outline-none border-none"
+                    style={{ minHeight: '600px' }}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-64 text-stone-400 text-sm font-light text-center">
+                  <div>
+                    <div className="text-3xl mb-3">✦</div>
+                    Gere uma nova análise de supervisão<br />ou selecione uma do histórico.
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+      <>
       {/* cards resumo */}
       <div className="grid grid-cols-4 gap-3 mb-8">
         {[
@@ -349,6 +531,8 @@ function EvolucaoContent() {
 
         </div>
       </div>
+          </>
+      )}
     </div>
   )
 }
