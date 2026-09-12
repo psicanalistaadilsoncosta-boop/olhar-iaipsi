@@ -140,7 +140,7 @@ function EntrarContent() {
           <p className="text-xs text-stone-100/25 font-light leading-relaxed">
             Não tem um link? Entre em contato com seu analista.<br />
             
-              href="https://wa.me/5511945098763"
+              <a href="https://wa.me/5511945098763"
               target="_blank"
               rel="noopener noreferrer"
               className="underline mt-1 inline-block transition-colors"
