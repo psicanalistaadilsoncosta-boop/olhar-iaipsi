@@ -6,6 +6,8 @@ import { createClient } from '@/lib/supabase/client'
 import RespostasBlocos from '@/components/analista/RespostasBlocos'
 import EditorDevolutiva from '@/components/analista/EditorDevolutiva'
 import PrazoBarra from '@/components/analista/PrazoBarra'
+import BannerPlano from '@/components/analista/BannerPlano'
+
 
 const CORES = { fiz: '#2D6A4F', tentei: '#C4732A', nao_consegui: '#B04A4A', nao_tentei: '#9A8E82' }
 const LABELS = { fiz: '✓ Fiz', tentei: '~ Tentei', nao_consegui: '✗ Não consegui', nao_tentei: '○ Ainda não tentei' }
@@ -20,6 +22,7 @@ export default function PacientePage() {
   const [cicloAtivo, setCicloAtivo] = useState(null) // número do ciclo selecionado na aba
   const [loading, setLoading] = useState(true)
   const [gerando, setGerando] = useState(false)
+  const [sessoes, setSessoes] = useState([]))
   const [gerandoCiclo, setGerandoCiclo] = useState(false)
   const [confirmEnvio, setConfirmEnvio] = useState(false)
   const [mostrarTodos, setMostrarTodos] = useState(false)
@@ -29,12 +32,13 @@ export default function PacientePage() {
   async function load() {
     setLoading(true)
     try {
-      const [{ data: r }, { data: res }, { data: devs }] = await Promise.all([
+        const [{ data: r }, { data: res }, { data: devs }, { data: sess }] = await Promise.all([
         supabase.from('olhar_respondentes').select('*').eq('id', id).single(),
         supabase.from('olhar_respostas').select('*').eq('respondente_id', id).order('situacao_index'),
         supabase.from('olhar_devolutivas').select('*').eq('respondente_id', id)
           .neq('status', 'rascunho') // ciclos completos
           .order('ciclo', { ascending: true }),
+        supabase.from('olhar_sessoes').select('*').eq('respondente_id', id).order('data_sessao'),
       ])
 
       // Busca rascunho separado
@@ -45,6 +49,7 @@ export default function PacientePage() {
 
       setRespondente(r)
       setRespostas(res || [])
+      setSessoes(sess || [])
 
       // Monta lista de ciclos: completos + rascunho no final se existir
       const lista = [...(devs || [])]
@@ -201,7 +206,14 @@ export default function PacientePage() {
         </div>
       )}
 
-            {/* barra de prazo */}
+            {/* banner do plano */}
+      <BannerPlano
+        respondente={respondente}
+        sessoes={sessoes}
+        onUpdate={load}
+      />
+
+      {/* barra de prazo */}
       {devAtiva && (
         <PrazoBarra devolutiva={devAtiva} respondente={respondente} />
       )}

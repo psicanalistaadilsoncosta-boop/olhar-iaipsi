@@ -113,9 +113,19 @@ export default function DevolutivaPage() {
       if (error) throw error
 
       // Atualiza status do respondente
+           // Conta interações concluídas
+      const { count } = await supabase
+        .from('olhar_devolutivas')
+        .select('*', { count: 'exact', head: true })
+        .eq('respondente_id', respondente_id)
+        .eq('status', 'respondida')
+
       await supabase
         .from('olhar_respondentes')
-        .update({ status: 'ativo' })
+        .update({
+          status: 'ativo',
+          interacoes_concluidas: (count || 0) + 1,
+        })
         .eq('id', respondente_id)
 
       setEnviado(true)
