@@ -46,7 +46,7 @@ export default function PaginaInicial() {
 
           <div className="flex gap-4 justify-center flex-wrap">
             
-              href="https://wa.me/5511945098763?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20Olhar"
+              <a href="https://wa.me/5511945098763?text=Olá,%20gostaria%20de%20saber%20mais%20sobre%20o%20Olhar"
               target="_blank"
               rel="noopener noreferrer"
               className="px-8 py-4 rounded-full text-stone-100 font-medium text-base transition-all hover:-translate-y-1"
