@@ -13,6 +13,25 @@ export default function PrazoBarra({ devolutiva, respondente }) {
   let label = ''
   let sublabel = ''
 
+   // Analista precisa enviar — rascunho gerado após resposta do paciente
+  if (devolutiva.status === 'rascunho') {
+    // Busca quando o paciente respondeu — usa a devolutiva anterior
+    // Por ora usa created_at do rascunho como referência
+    modo = 'analista'
+    inicio = new Date(devolutiva.created_at)
+    prazoMs = prazoAnalistaHoras * 60 * 60 * 1000
+    const deadline = new Date(inicio.getTime() + prazoMs)
+    const restante = deadline - agora
+    const horasRestantes = Math.max(0, Math.floor(restante / (1000 * 60 * 60)))
+    const diasRestantes = Math.floor(horasRestantes / 24)
+    const vencido = restante <= 0
+
+    label = vencido
+      ? `⚠ Prazo vencido — análise gerada há ${Math.floor((agora - inicio) / (1000 * 60 * 60 * 24))} dias`
+      : `Rascunho pronto · você tem ${horasRestantes < 24 ? `${horasRestantes}h` : `${diasRestantes}d ${horasRestantes % 24}h`} para enviar ao paciente`
+    sublabel = `Prazo: ${deadline.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })} às ${deadline.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
+  }
+
   // Analista precisa responder
   if (devolutiva.status === 'respondida' && devolutiva.resposta_paciente_at) {
     modo = 'analista'
