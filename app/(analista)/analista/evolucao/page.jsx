@@ -72,7 +72,7 @@ function EvolucaoContent() {
     }
   }
 
-  async function analisarHipotese(hip) {
+    async function analisarHipotese(hip) {
     setHipoteseAtiva(hip)
     setAnalisandoHip(true)
     setAnaliseHip(null)
@@ -83,6 +83,7 @@ function EvolucaoContent() {
         body: JSON.stringify({
           hipotese: hip,
           contexto_caso: supAtiva?.texto_caso || '',
+          supervisao_id: supAtiva?.id || null,
         }),
       })
       const data = await res.json()
@@ -273,9 +274,12 @@ function EvolucaoContent() {
                     </h2>
                   </div>
                   {supervisoes.map((s, i) => (
-                    <button key={s.id} onClick={() => {
+                     <button key={s.id} onClick={() => {
                       setSupAtiva(s)
                       setAnaliseEditada(s.analise_editada || s.analise_bruta)
+                      setHipoteses(s.hipoteses || [])
+                      setAnaliseHip(null)
+                      setHipoteseAtiva(null)
                     }}
                       className={`w-full text-left px-4 py-3 border-b border-stone-50 last:border-0 transition-colors hover:bg-stone-50
                         ${supAtiva?.id === s.id ? 'bg-amber-50' : ''}`}>

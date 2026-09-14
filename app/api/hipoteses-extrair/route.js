@@ -66,6 +66,15 @@ Extraia todas as hipóteses presentes na seção de hipóteses clínicas. Se nã
         console.log(`[json-retry] tentativa ${tentativas + 1}...`)
       }
     }
+       // Salva no banco se veio de uma supervisão
+    if (supervisao_id) {
+      const supabase = await createClient()
+      await supabase
+        .from('olhar_supervisoes')
+        .update({ hipoteses: parsed.hipoteses })
+        .eq('id', supervisao_id)
+    }
+
     return Response.json(parsed)
   } catch (err) {
     console.error('[hipoteses-extrair]', err)

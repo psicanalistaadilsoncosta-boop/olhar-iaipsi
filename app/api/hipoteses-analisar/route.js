@@ -4,8 +4,23 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(req) {
   try {
-    const { hipotese, contexto_caso } = await req.json()
+    const { hipotese, contexto_caso, supervisao_id } = await req.json()
 
+    // Verifica se já existe no banco
+    if (supervisao_id) {
+      const supabase = await createClient()
+      const { data: sup } = await supabase
+        .from('olhar_supervisoes')
+        .select('analises_hipoteses')
+        .eq('id', supervisao_id)
+        .single()
+
+      const chave = `h${hipotese.numero}`
+      if (sup?.analises_hipoteses?.[chave]) {
+        console.log(`[hipoteses-analisar] usando cache da hipótese ${hipotese.numero}`)
+        return Response.json({ ...sup.analises_hipoteses[chave], hipotese })
+      }
+    }
     const prompt = `Você é um psicanalista supervisor experiente com domínio amplo das escolas psicanalíticas. Receberá uma hipótese clínica e deverá analisá-la em profundidade.
 
 CONTEXTO DO CASO:
@@ -82,6 +97,26 @@ Produza uma análise estruturada. Retorne SOMENTE um JSON válido, sem markdown:
         console.log(`[json-retry] tentativa ${tentativas + 1}...`)
       }
     }
+      // Salva no banco
+    if (supervisao_id) {
+      const supabase = await createClient()
+      const chave = `h${hipotese.numero}`
+
+      const { data: sup } = await supabase
+        .from('olhar_supervisoes')
+        .select('analises_hipoteses')
+        .eq('id', supervisao_id)
+        .single()
+
+      const analises = sup?.analises_hipoteses || {}
+      analises[chave] = parsed
+
+      await supabase
+        .from('olhar_supervisoes')
+        .update({ analises_hipoteses: analises })
+        .eq('id', supervisao_id)
+    }
+
     return Response.json({ ...parsed, hipotese })
   } catch (err) {
     console.error('[hipoteses-analisar]', err)
