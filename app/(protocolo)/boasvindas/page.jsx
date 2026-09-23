@@ -30,13 +30,15 @@ function HomeContent() {
         return
       }
 
-      const { data, error } = await supabase
-        .from('olhar_respondentes')
-        .select('id, nome, token, status')
-        .eq('token', token)
-        .single()
+       const res = await fetch('/api/protocolo/entrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+      const json = await res.json()
+      const data = json.ok ? { ...json.respondente, token } : null
 
-      if (error || !data) {
+      if (!data) {
         setErro(true)
         setLoading(false)
         return

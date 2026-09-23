@@ -29,22 +29,21 @@ export default function DevolutivaPage() {
   }, [])
 
   async function load() {
-    const respondente_id = sessionStorage.getItem('olhar_respondente_id')
-    if (!respondente_id) {
+       const token = sessionStorage.getItem('olhar_token')
+    if (!token) {
       router.replace('/')
       return
     }
 
-    const { data, error } = await supabase
-      .from('olhar_devolutivas')
-      .select('*')
-      .eq('respondente_id', respondente_id)
-      .eq('status', 'enviada')
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
+    const res = await fetch('/api/protocolo/devolutiva', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    })
+    const json = await res.json()
+    const data = json.ok ? json.devolutiva : null
 
-    if (error || !data) {
+    if (!data) {
       router.replace('/aguardando')
       return
     }
@@ -96,37 +95,20 @@ export default function DevolutivaPage() {
     }
     setEnviando(true)
     try {
-      const respondente_id = sessionStorage.getItem('olhar_respondente_id')
-
-       const { error } = await supabase
-        .from('olhar_devolutivas')
-        .update({
+            const res = await fetch('/api/protocolo/devolutiva', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: sessionStorage.getItem('olhar_token'),
+          devolutiva_id: devolutiva.id,
           resposta_paciente: respostaSoa,
-          resposta_paciente_at: new Date().toISOString(),
           acoes_respondidas: respostasAcoes,
           respostas_situacoes_retomadas: respostasSituacoes,
           observacoes_paciente: observacoes,
-          status: 'respondida',
-        })
-        .eq('id', devolutiva.id)
-
-      if (error) throw error
-
-      // Atualiza status do respondente
-           // Conta interações concluídas
-      const { count } = await supabase
-        .from('olhar_devolutivas')
-        .select('*', { count: 'exact', head: true })
-        .eq('respondente_id', respondente_id)
-        .eq('status', 'respondida')
-
-      await supabase
-        .from('olhar_respondentes')
-        .update({
-          status: 'ativo',
-          interacoes_concluidas: (count || 0) + 1,
-        })
-        .eq('id', respondente_id)
+        }),
+      })
+      const json = await res.json()
+      if (!json.ok) throw new Error('não foi possível registrar sua resposta')
 
       setEnviado(true)
     } catch (err) {

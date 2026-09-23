@@ -24,13 +24,15 @@ function EntrarContent() {
     setLoading(true)
     setErro('')
     try {
-      const { data, error } = await supabase
-        .from('olhar_respondentes')
-        .select('id, nome, token, status')
-        .eq('token', token)
-        .single()
+           const res = await fetch('/api/protocolo/entrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+      const json = await res.json()
+      const data = json.ok ? json.respondente : null
 
-      if (error || !data) {
+      if (!data) {
         setErro('Link inválido. Verifique o link enviado pelo seu analista.')
         setLoading(false)
         return

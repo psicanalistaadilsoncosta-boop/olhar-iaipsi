@@ -9,19 +9,17 @@ export default function AguardandoPage() {
 
   useEffect(() => {
     async function loadSessao() {
-      const respondente_id = sessionStorage.getItem('olhar_respondente_id')
-      if (!respondente_id) return
+           const token = sessionStorage.getItem('olhar_token')
+      if (!token) return
 
-      const { data } = await supabase
-        .from('olhar_sessoes')
-        .select('*')
-        .eq('respondente_id', respondente_id)
-        .eq('status', 'agendada')
-        .order('data_sessao', { ascending: true })
-        .limit(1)
-        .maybeSingle()
+      const res = await fetch('/api/protocolo/sessao', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token }),
+      })
+      const json = await res.json()
 
-      setSessao(data)
+      setSessao(json.ok ? json.sessao : null)
     }
     loadSessao()
   }, [])
@@ -99,7 +97,7 @@ export default function AguardandoPage() {
               className="flex-1 py-2 rounded-xl text-xs font-medium text-white transition-colors"
               style={{ background: '#2D6A4F' }}
                             onClick={async () => {
-                await supabase.from('olhar_sessoes').update({ confirmacao: 'confirmada' }).eq('id', sessao.id)
+                await fetch('/api/protocolo/sessao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: sessionStorage.getItem('olhar_token'), acao: 'confirmar' }) })
                 setSessao(s => ({ ...s, confirmacao: 'confirmada' }))
               }}
             >
@@ -109,7 +107,7 @@ export default function AguardandoPage() {
               className="flex-1 py-2 rounded-xl text-xs font-medium border transition-colors"
               style={{ borderColor: 'rgba(255,255,255,0.15)', color: 'rgba(248,243,236,0.5)' }}
                             onClick={async () => {
-                await supabase.from('olhar_sessoes').update({ confirmacao: 'reagendar' }).eq('id', sessao.id)
+                await fetch('/api/protocolo/sessao', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: sessionStorage.getItem('olhar_token'), acao: 'reagendar' }) })
                 setSessao(s => ({ ...s, confirmacao: 'reagendar' }))
               }}
             >
