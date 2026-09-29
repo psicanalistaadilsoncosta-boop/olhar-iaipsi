@@ -78,8 +78,8 @@ Gere SOMENTE um JSON valido, sem markdown, sem texto fora do JSON. Nao use aspas
 {"analise_interna":"Analise tecnica em 3 paragrafos para o analista. Pode usar termos psicanaliticos. Identifique os eixos centrais, padroes, contradicoes e o que merece atencao especial na sessao ao vivo.","situacoes_puladas":[{"situacao":"Situacao N - tema","hipotese":"Hipotese clinica breve sobre o silencio neste tema."}],"tags":["tag1","tag2","tag3","tag4"],"opcoes_enunciado":["Enunciado 1: texto acolhedor de 2-3 frases que devolve uma observacao central ao paciente. Tom humano, sem diagnostico, sem jargao. Termina aberto.","Enunciado 2: angulo diferente do enunciado 1. Mesma delicadeza.","Enunciado 3: terceiro angulo, diferente dos dois anteriores."],"acoes":[{"tipo":"Reflexao","texto":"Acao ou reflexao concreta para a semana. Simples, aplicavel, nao clinica."},{"tipo":"Observacao","texto":"Segunda acao."},{"tipo":"Convite","texto":"Terceira acao - mais suave, um convite."}],"nota_supervisor":"Uma frase de alerta para o supervisor sobre algo que merece atencao especial neste caso."}`
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+      max_tokens: 5500,
       messages: [{ role: 'user', content: prompt }],
     })
 

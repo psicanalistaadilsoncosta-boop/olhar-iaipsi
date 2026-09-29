@@ -42,8 +42,8 @@ Retorne SOMENTE um JSON válido, sem markdown:
 Extraia todas as hipóteses presentes na seção de hipóteses clínicas. Se não houver seção específica, identifique as hipóteses principais presentes em todo o texto. Máximo 8 hipóteses.`
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 2000,
+      model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+      max_tokens: 2600,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -51,8 +51,8 @@ Extraia todas as hipóteses presentes na seção de hipóteses clínicas. Se nã
     let tentativas = 0
     while (tentativas < 3) {
       const tentativaResponse = tentativas === 0 ? response : await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: tentativas === 0 ? 2000 : 2000,
+        model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+        max_tokens: tentativas === 0 ? 2600 : 2600,
         messages: [{ role: 'user', content: prompt }],
       })
       const tentativaRaw = tentativaResponse.content[0].text.trim()

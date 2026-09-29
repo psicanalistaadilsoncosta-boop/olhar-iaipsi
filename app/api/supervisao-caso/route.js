@@ -205,8 +205,8 @@ export async function POST(req) {
     const prompt = montarPrompt(escolasTexto, texto_caso, analise_anterior)
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8000,
+      model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+      max_tokens: 10000,
       messages: [{ role: 'user', content: prompt }],
     })
 

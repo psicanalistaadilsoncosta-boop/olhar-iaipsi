@@ -151,8 +151,8 @@ Com base em tudo isso, gere SOMENTE um JSON valido, sem markdown. Use apenas asp
 {"analise_interna":"Analise tecnica em 3 paragrafos. Considere: (1) o que a resposta do paciente revela em relacao a analise inicial, (2) o que as acoes feitas ou nao feitas dizem sobre o momento atual, (3) o que ainda nao foi tocado e merece atencao.","situacoes_puladas":[{"situacao":"Situacao N - tema","hipotese":"Hipotese clinica sobre o silencio."}],"acoes_pendentes":[{"tipo":"Reflexao","texto":"APENAS acoes do ciclo anterior com status nao_consegui ou nao_tentei ou nao_respondeu. Se todas foram feitas, retorne array vazio []."}],"tags":["tag1","tag2","tag3"],"opcoes_enunciado":["Enunciado 1: 2-3 frases acolhedoras. Tom humano, sem diagnostico. Termina aberto.","Enunciado 2: angulo diferente.","Enunciado 3: mais suave."],"acoes":[{"tipo":"Reflexao","texto":"Acao NOVA para este ciclo — diferente das acoes_pendentes, nao repita o que esta la."},{"tipo":"Observacao","texto":"Segunda acao nova."},{"tipo":"Convite","texto":"Terceira acao nova — mais suave."}],"nota_supervisor":"Uma frase de alerta para o supervisor."}`
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+      max_tokens: 5500,
       messages: [{ role: 'user', content: prompt }],
     })
 

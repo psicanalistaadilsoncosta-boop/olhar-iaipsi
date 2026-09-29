@@ -73,8 +73,8 @@ Produza uma análise estruturada. Retorne SOMENTE um JSON válido, sem markdown:
 }`
 
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 8000,
+      model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+      max_tokens: 10000,
       messages: [{ role: 'user', content: prompt }],
     })
 
@@ -82,8 +82,8 @@ Produza uma análise estruturada. Retorne SOMENTE um JSON válido, sem markdown:
     let tentativas = 0
     while (tentativas < 3) {
       const tentativaResponse = tentativas === 0 ? response : await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: tentativas === 0 ? 2000 : 2000,
+        model: 'claude-sonnet-5-5', thinking: { type: 'between_tools' },
+        max_tokens: tentativas === 0 ? 2600 : 2600,
         messages: [{ role: 'user', content: prompt }],
       })
       const tentativaRaw = tentativaResponse.content[0].text.trim()
