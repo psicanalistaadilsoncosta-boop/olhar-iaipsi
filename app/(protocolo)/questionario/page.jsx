@@ -34,7 +34,8 @@ export default function QuestionarioPage() {
 
   async function carregarRespostas(respondente_id) {
     try {
-      const res = await fetch(`/api/buscar-respostas?id=${respondente_id}`)
+      const token = sessionStorage.getItem('olhar_token') || ''
+      const res = await fetch(`/api/buscar-respostas?t=${encodeURIComponent(token)}`)
       const data = await res.json()
       if (!data.respostas) return
 
@@ -116,10 +117,10 @@ export default function QuestionarioPage() {
       resposta_opcao: ['images', 'select', 'scale'].includes(q.type) && !skipped[index] ? answers[index] : null,
       pulada: skipped[index],
     }
-    await fetch('/api/salvar-resposta', {
+        await fetch('/api/salvar-resposta', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(row),
+      body: JSON.stringify({ ...row, token: sessionStorage.getItem('olhar_token') }),
     })
   }
 
@@ -148,7 +149,7 @@ export default function QuestionarioPage() {
       const res = await fetch('/api/salvar-questionario', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ respondente_id, respostas: rows }),
+        body: JSON.stringify({ token: sessionStorage.getItem('olhar_token'), respostas: rows }),
       })
 
       const data = await res.json()

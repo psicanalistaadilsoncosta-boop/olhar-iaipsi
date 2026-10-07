@@ -7,7 +7,30 @@ const supabase = createClient(
 
 export async function POST(req) {
   try {
-    const row = await req.json()
+    const body = await req.json()
+
+    // Descobre o paciente pelo token do link
+    if (!body.token || typeof body.token !== 'string') {
+      return Response.json({ error: 'Token obrigatório' }, { status: 400 })
+    }
+    const { data: resp } = await supabase
+      .from('olhar_respondentes')
+      .select('id')
+      .eq('token', body.token)
+      .maybeSingle()
+    if (!resp) return Response.json({ error: 'Token inválido' }, { status: 403 })
+
+    // Só os campos de uma resposta; o paciente vem do token
+    const row = {
+      respondente_id: resp.id,
+      ciclo: Number(body.ciclo) || 1,
+      situacao_index: body.situacao_index,
+      bloco: body.bloco,
+      tipo_resposta: body.tipo_resposta,
+      resposta_texto: body.resposta_texto ?? null,
+      resposta_opcao: body.resposta_opcao ?? null,
+      pulada: !!body.pulada,
+    }
 
     // Upsert — atualiza se já existe, cria se não existe
     const { error } = await supabase

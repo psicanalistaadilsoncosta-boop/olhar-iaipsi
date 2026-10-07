@@ -8,8 +8,17 @@ const supabase = createClient(
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url)
-    const id = searchParams.get('id')
-    if (!id) return Response.json({ error: 'ID obrigatório' }, { status: 400 })
+        const token = searchParams.get('t')
+    if (!token) return Response.json({ error: 'Token obrigatório' }, { status: 400 })
+
+    // Descobre o paciente pelo token do link
+    const { data: resp } = await supabase
+      .from('olhar_respondentes')
+      .select('id')
+      .eq('token', token)
+      .maybeSingle()
+    if (!resp) return Response.json({ error: 'Token inválido' }, { status: 403 })
+    const id = resp.id
 
     const { data, error } = await supabase
       .from('olhar_respostas')

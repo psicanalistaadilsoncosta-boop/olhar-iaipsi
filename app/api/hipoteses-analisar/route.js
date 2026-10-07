@@ -1,3 +1,5 @@
+import { analistaLogadoId } from '@/lib/analistaServidor'
+
 import Anthropic from '@anthropic-ai/sdk'
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
@@ -5,6 +7,11 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 export async function POST(req) {
   try {
     const { hipotese, contexto_caso, supervisao_id } = await req.json()
+
+    // Só analista logado usa a IA
+    if (!(await analistaLogadoId())) {
+      return Response.json({ error: 'Sessão expirada. Faça login novamente.' }, { status: 401 })
+    }
 
     // Verifica se já existe no banco
     if (supervisao_id) {
